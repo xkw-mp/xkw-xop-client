@@ -1,0 +1,30 @@
+!.gitignore
+
+target/
+.idea/
+*.iml
+.DS_Store
+
+# eclipse
+.settings/
+.project
+.classpath
+/bin/
+
+gravitee-rest-api-standalone/gravitee-rest-api-standalone-distribution/src/main/resources/license/*
+gravitee-rest-api-standalone/gravitee-rest-api-standalone-distribution/src/main/resources/logs/*
+gravitee-rest-api-standalone/gravitee-rest-api-standalone-distribution/src/main/resources/data/*
+gravitee-rest-api-standalone/gravitee-rest-api-standalone-distribution/src/main/resources/plugins/*
+
+# some
+full
+out
+*~
+
+*~
+.swp
+.swo
+
+# FE
+node_modules
+package-lock.json
