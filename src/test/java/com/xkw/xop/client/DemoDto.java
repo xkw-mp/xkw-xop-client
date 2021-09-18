@@ -9,7 +9,7 @@ package com.xkw.xop.client;
  *
  * @author LiuJibin
  * @version 1.0
- * @date 2021年09月17日
+ * @since 2021年09月17日
  */
 public class DemoDto {
     private String name;

@@ -22,7 +22,7 @@ import java.util.Map;
  * XOP（学科网开放平台）HTTP 请求客户端
  *
  * @author LiuJibin
- * @date 2021/07/01
+ * @since 2021/07/01
  */
 public class XopHttpClient {
 

@@ -22,7 +22,7 @@ import java.util.UUID;
  * 生成XOP Hmac签名
  *
  * @author LiuJibin
- * @date 2021/07/01
+ * @since 2021/07/01
  */
 public class HmacUtils {
 

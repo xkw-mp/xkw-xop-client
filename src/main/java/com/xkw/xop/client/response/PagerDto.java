@@ -3,7 +3,6 @@
  */
 package com.xkw.xop.client.response;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
  * 分页数据
  *
  * @author KQS
- * @date 2021/7/6
+ * @since 2021/7/6
  */
 public class PagerDto<T> {
     /**

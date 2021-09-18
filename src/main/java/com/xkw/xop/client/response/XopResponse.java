@@ -7,7 +7,7 @@ package com.xkw.xop.client.response;
  * XOP API接口响应结果格式
  *
  * @author KQS
- * @date 2021/07/06
+ * @since 2021/07/06
  */
 public class XopResponse<T> {
     private Integer code;

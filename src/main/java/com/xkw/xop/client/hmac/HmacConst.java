@@ -8,7 +8,7 @@ package com.xkw.xop.client.hmac;
  * Hmac常量
  *
  * @author Wendy
- * @date 2021/07/05
+ * @since 2021/07/05
  */
 public class HmacConst {
 
