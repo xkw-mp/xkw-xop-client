@@ -91,7 +91,10 @@ public class XopHttpClient {
      * @return Unirest HttpResponse
      */
     public HttpResponse<String> post(String uri, Map<String, Object> queryParamMap, Object body) {
-        String bodyString = GSON.toJson(body);
+        String bodyString = null;
+        if (body != null) {
+            bodyString = GSON.toJson(body);
+        }
         return sendRequest(HttpMethod.POST, uri, queryParamMap, bodyString);
     }
 
@@ -117,11 +120,15 @@ public class XopHttpClient {
                 .queryString(parameters)
                 .asString();
         } else {
-            response = client.post(fullUri)
-                .headers(headerMap)
-                .queryString(parameters)
-                .body(bodyString)
-                .asString();
+            if (bodyString == null) {
+                response = client.post(fullUri).headers(headerMap).queryString(parameters)
+                    .asString();
+            }
+            else {
+                response = client.post(fullUri).headers(headerMap).queryString(parameters)
+                    //body传Object对象会使用 json 序列化的重载方法
+                    .body(bodyString).asString();
+            }
         }
         return response;
     }
