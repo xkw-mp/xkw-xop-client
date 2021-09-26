@@ -7,14 +7,21 @@
 
 学科网开放平台的门户：https://open.xkw.com
 
-## XOP接口请求签名
-
-XOP接口使用HMAC签名算法
-
-
 ## 快速开始
 
-生成XopHttpClient
+引入Maven依赖
+
+```
+    <dependencies>
+        <dependency>
+            <groupId>com.xkw.xop</groupId>
+            <artifactId>xkw-xop-client</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+    </dependencies>
+```
+
+创建XopHttpClient
 
 ```
 XopHttpClient client =
@@ -25,7 +32,7 @@ XopHttpClient client =
        .build();
 ```
 
-接口请求
+请求接口
 
 ```
    Map<String, Object> queryMap = new HashMap<>(4);
@@ -35,11 +42,15 @@ XopHttpClient client =
    HttpResponse<String> response = getClient().get(GET_URL, queryMap);
 ```
 
-其他内容请参考：XopHttpClientTests
+更多内容请参考：XopHttpClientTests
 
 ## 注意事项
 
 因为URI和query参数需要分别参与签名，请在使用接口调用接口时，分别传入URI和query参数。
+
+## XOP接口请求签名
+
+XOP接口使用HMAC签名算法
 
 
 
