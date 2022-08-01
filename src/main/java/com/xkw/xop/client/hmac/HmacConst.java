@@ -5,19 +5,16 @@ package com.xkw.xop.client.hmac;
 
 /**
  * HmacConst
- * Hmac常量
- *
+ * XOP-HMAC算法所用常量
  * @author Wendy
- * @since 2021/07/05
  */
 public class HmacConst {
-
     /**
-     * 时间戳
+     * 请求发起时的时间戳
      */
     public static final String KEY_TIMESTAMP = "Xop-Timestamp";
     /**
-     * 签名
+     * HMAC签名
      */
     public static final String KEY_SIGN = "Xop-Sign";
     /**
@@ -25,7 +22,7 @@ public class HmacConst {
      */
     public static final String KEY_NONCE = "Xop-Nonce";
     /**
-     * 的accessId
+     * 请求所用的应用Id
      */
     public static final String KEY_APP_ID = "Xop-App-Id";
     /**
@@ -36,5 +33,10 @@ public class HmacConst {
      * POST请求的Body
      */
     public static final String REQUEST_BODY  = "xop_body";
+
+    /**
+     * 请求跟踪Id
+     */
+    public static final String KEY_REQUEST_ID = "X-Request-Id";
 
 }

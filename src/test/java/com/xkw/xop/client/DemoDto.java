@@ -5,11 +5,8 @@ package com.xkw.xop.client;
 
 /**
  * DemoDto
- * description
- *
+ * 示例Dto，用于展示解析
  * @author LiuJibin
- * @version 1.0
- * @since 2021年09月17日
  */
 public class DemoDto {
     private String name;

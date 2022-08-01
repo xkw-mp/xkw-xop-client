@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.xkw.xop</groupId>
             <artifactId>xkw-xop-client</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
 ```
@@ -25,11 +25,11 @@
 
 ```
 XopHttpClient client =
-    new XopHttpClient.Builder()
-       .appId(APP_ID)
-       .secret(SECRET)
-       .timeout(10).maxConnectionPerRoute(10)
-       .build();
+    return new XopClientBuilder()
+        .appId(APP_ID)
+        .secret(SECRET)
+        .timeout(10).maxConnectionPerRoute(10)
+        .buildHttpClient();
 ```
 
 请求接口
@@ -50,7 +50,7 @@ XopHttpClient client =
 
 ## XOP接口请求签名
 
-XOP接口使用HMAC签名算法
+XOP接口使用HMAC签名算法，详情参考[XOP开发指南](https://open.xkw.com/%E5%B9%B3%E5%8F%B0%E7%AE%80%E4%BB%8B-mdtag9bc76-omd)
 
 
 

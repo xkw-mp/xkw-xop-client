@@ -19,10 +19,9 @@ import java.util.UUID;
 
 /**
  * HmacUtils
- * 生成XOP Hmac签名
+ * XOP接口签名工具类
  *
  * @author LiuJibin
- * @since 2021/07/01
  */
 public class HmacUtils {
 
@@ -43,7 +42,10 @@ public class HmacUtils {
         if (urlParam != null) {
             map.putAll(urlParam);
         }
+        // get AccessTokenId, sign
         map.put(HmacConst.KEY_APP_ID, appId);
+        // 去掉传递过来的sign
+        map.remove(HmacConst.KEY_SIGN);
         // 去掉传递过来的nonce，一律在此统一放入
         map.remove(HmacConst.KEY_NONCE);
         String nonce = getNonce();
@@ -57,7 +59,6 @@ public class HmacUtils {
 
     /**
      * 生成请求参数中Nonce
-     *
      * @return nonce 字符串
      */
     public static String getNonce() {

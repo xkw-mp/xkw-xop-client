@@ -6,11 +6,9 @@ package com.xkw.xop.client.response;
 import java.util.List;
 
 /**
- * PageData
- * 分页数据
- *
+ * PagerDto
+ * XOP请求返回Body的分页结构
  * @author KQS
- * @since 2021/7/6
  */
 public class PagerDto<T> {
     /**

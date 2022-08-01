@@ -3,226 +3,133 @@
  */
 package com.xkw.xop.client;
 
-import com.google.gson.Gson;
+import com.xkw.xop.client.response.XopHttpResponse;
+import com.xkw.xop.client.utils.Utils;
 import com.xkw.xop.client.hmac.HmacConst;
 import com.xkw.xop.client.hmac.HmacResult;
 import com.xkw.xop.client.hmac.HmacUtils;
 import kong.unirest.Config;
 import kong.unirest.HttpMethod;
+import kong.unirest.HttpRequestWithBody;
 import kong.unirest.HttpResponse;
-import kong.unirest.Proxy;
 import kong.unirest.UnirestInstance;
-import kong.unirest.apache.ApacheClient;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.xkw.xop.client.utils.Constants.CONTENT_TYPE_JSON;
+import static com.xkw.xop.client.utils.Constants.GSON;
+
 /**
  * XopHttpClient
- * XOP（学科网开放平台）HTTP 请求客户端
- *
+ * 学科网开放平台XOP，HTTP请求客户端
  * @author LiuJibin
- * @since 2021/07/01
  */
+@SuppressWarnings("unused")
 public class XopHttpClient {
 
-    /**
-     * XOP-Gateway地址
-     */
-    public static final String XOP_GATEWAY_HOST = "https://openapi.xkw.com";
+    protected final String gatewayHost;
+    protected final String appId;
+    protected final String secret;
 
-    /**
-     * 默认超时时间10秒钟
-     */
-    private static final Integer TIMEOUT_SECONDS = 10;
+    protected final UnirestInstance client;
 
-    /**
-     * 请求结果格式
-     */
-    private static final String CONTENT_TYPE_JSON = "application/json";
-    /**
-     * 默认最大连接池数
-     */
-    private static final Integer MAX_CONNECTION_POOL_SIZE = 100;
-    /**
-     * 单路由默认最大连接数
-     */
-    private static final Integer MAX_CONNECTION_PER_ROUTE = 100;
-    /**
-     * XOP网关地址
-     */
-    private final String gatewayHost;
-    private final String appId;
-    private final String secret;
-
-    private final UnirestInstance client;
-
-    private static final Gson GSON = new Gson();
-
-
-    public XopHttpClient(String gatewayHost, String appId, String secret, Config config) {
+    XopHttpClient(String gatewayHost, String appId, String secret, Config config) {
         this.gatewayHost = gatewayHost;
         this.appId = appId;
         this.secret = secret;
         if (config == null) {
             config = new Config();
         }
-
         client = new UnirestInstance(config);
     }
 
     /**
-     * 带query参数的GET请求
-     * 注：uri中不能包含query参数！
-     * @param uri uri不包含host、query
-     * @param queryParamMap query参数Map
-     * @return Unirest HttpResponse
+     * GET无参请求
+     * @param uri uri
+     * @return @See XopHttpResponse
      */
-    public HttpResponse<String> get(String uri, Map<String, Object> queryParamMap) {
-        return sendRequest(HttpMethod.GET, uri, queryParamMap, null);
+    public XopHttpResponse<String> get(String uri) {
+        return get(uri, null);
+    }
+
+    /**
+     * GET有参请求
+     * @param uri uri
+     * @param queryParams query参数
+     * @return @See XopHttpResponse
+     */
+    public XopHttpResponse<String> get(String uri, Map<String, Object> queryParams) {
+        return sendRequest(HttpMethod.GET, uri, queryParams, null);
     }
 
     /**
      * POST请求
-     * 注：uri中不能包含query参数！
-     * @param uri uri不包含host、query
-     * @param queryParamMap query参数Map
-     * @param body body参数，没有请传null
-     * @return Unirest HttpResponse
+     * @param uri uri
+     * @param queryParams query参数
+     * @param body 请求体
+     * @return @See XopHttpResponse
      */
-    public HttpResponse<String> post(String uri, Map<String, Object> queryParamMap, Object body) {
-        String bodyString = null;
-        if (body != null) {
-            bodyString = GSON.toJson(body);
-        }
-        return sendRequest(HttpMethod.POST, uri, queryParamMap, bodyString);
+    public XopHttpResponse<String> post(String uri, Map<String, Object> queryParams, Object body) {
+        return sendRequest(HttpMethod.POST, uri, queryParams, body);
     }
 
-    private HttpResponse<String> sendRequest(HttpMethod method, String uri
-        , Map<String, Object> parameters, String bodyString) {
+    public XopHttpResponse<String> sendRequest(HttpMethod method, String uri
+        , Map<String, Object> queryParams, Object body) {
+        String bodyString = null;
+        if (body instanceof String) {
+            bodyString = (String)body;
+        }
+        else if (body != null) {
+            bodyString = GSON.toJson(body);
+        }
+        HmacResult result = getHmacResult(uri, queryParams, bodyString);
+        Map<String, String> headerMap = getHeaderMap(result);
+        return getHttpResponse(method, uri, headerMap, queryParams, bodyString);
+    }
+
+    protected HmacResult getHmacResult(String uri, Map<String, Object> queryParams, String bodyString) {
         Map<String, Object> map = new HashMap<>(8);
-        if (parameters != null) {
-            map.putAll(parameters);
+        if (queryParams != null) {
+            map.putAll(queryParams);
         }
         map.put(HmacConst.KEY_URL, uri);
-        HmacResult result = HmacUtils.sign(appId, secret, map, bodyString);
-        String fullUri = gatewayHost + uri;
+        return HmacUtils.sign(appId, secret, map, bodyString);
+    }
+
+    protected Map<String, String> getHeaderMap(HmacResult result) {
         Map<String, String> headerMap = new HashMap<>(8);
         headerMap.put(HmacConst.KEY_APP_ID, appId);
         headerMap.put(HmacConst.KEY_TIMESTAMP, result.getTimeStamp().toString());
         headerMap.put(HmacConst.KEY_SIGN, result.getSign());
         headerMap.put(HmacConst.KEY_NONCE, result.getNonce());
         headerMap.put("Content-Type", CONTENT_TYPE_JSON);
+        return headerMap;
+    }
+
+    protected XopHttpResponse<String> getHttpResponse(HttpMethod method, String uri, Map<String, String> headerMap, Map<String, Object> queryParams,
+        String bodyString) {
+        String fullUri = gatewayHost + uri;
         HttpResponse<String> response;
+
+        String requestId = Utils.getRequestId();
+        headerMap.put(HmacConst.KEY_REQUEST_ID, requestId);
         if (method == HttpMethod.GET) {
             response = client.get(fullUri)
                 .headers(headerMap)
-                .queryString(parameters)
+                .queryString(queryParams)
                 .asString();
         } else {
-            if (bodyString == null) {
-                response = client.post(fullUri).headers(headerMap).queryString(parameters)
-                    .asString();
-            }
-            else {
-                response = client.post(fullUri).headers(headerMap).queryString(parameters)
-                    //body传Object对象会使用 json 序列化的重载方法
-                    .body(bodyString).asString();
+            HttpRequestWithBody req = client.post(fullUri).headers(headerMap).queryString(queryParams);
+            if (Utils.isEmpty(bodyString)) {
+                response = req.asString();
+            } else {
+                //body传Object对象会使用 json 序列化的重载方法
+                response = req.body(bodyString).asString();
             }
         }
-        return response;
+        return new XopHttpResponse<>(response, requestId);
     }
 
-    public UnirestInstance getClient() {
-        return client;
-    }
 
-    public static class Builder {
-        private String gatewayHost;
-        private String appId;
-        private String secret;
-        private Integer timeout;
-        private Proxy proxy;
-        private int maxPoolSize;
-        private int maxConnectionPerRoute;
-        private Integer connectionValidatePeriod;
-
-        public Builder gatewayHost(String gatewayHost) {
-            this.gatewayHost = gatewayHost;
-            return this;
-        }
-
-        public Builder appId(String appId) {
-            this.appId = appId;
-            return this;
-        }
-        public Builder secret(String secret) {
-            this.secret = secret;
-            return this;
-        }
-
-        public Builder timeout(int timeout) {
-            this.timeout = timeout;
-            return this;
-        }
-        public Builder proxy(Proxy proxy) {
-            this.proxy = proxy;
-            return this;
-        }
-        public Builder maxPoolSize(int maxPoolSize) {
-            this.maxPoolSize = maxPoolSize;
-            return this;
-        }
-        public Builder maxConnectionPerRoute(int maxConnectionPerRoute) {
-            this.maxConnectionPerRoute = maxConnectionPerRoute;
-            return this;
-        }
-
-        public Builder connectionValidatePeriod(Integer connectionValidatePeriod) {
-            this.connectionValidatePeriod = connectionValidatePeriod;
-            return this;
-        }
-
-        public XopHttpClient build() throws RuntimeException {
-            if (isEmpty(gatewayHost)) {
-                gatewayHost = XOP_GATEWAY_HOST;
-            }
-            if (isEmpty(appId)) {
-                throw new RuntimeException("XOP App-Id must be set!");
-            }
-            if (isEmpty(secret)) {
-                throw new RuntimeException("XOP App-secret must be set!");
-            }
-            Config config = new Config();
-            if (timeout == null) {
-                timeout = TIMEOUT_SECONDS;
-            }
-
-            config
-                .socketTimeout(timeout * 1000)
-                .connectTimeout(timeout * 1000);
-            if (maxPoolSize <= 0) {
-                maxPoolSize = MAX_CONNECTION_POOL_SIZE;
-            }
-            if (maxConnectionPerRoute <= 0) {
-                maxConnectionPerRoute = MAX_CONNECTION_PER_ROUTE;
-            }
-            config.concurrency(maxPoolSize, maxConnectionPerRoute);
-            config.proxy(proxy);
-            if (connectionValidatePeriod != null) {
-                config.httpClient(conf -> {
-                    ApacheClient cli = new ApacheClient(conf);
-                    cli.getManager().setValidateAfterInactivity(connectionValidatePeriod);
-                    return cli;
-                });
-            }
-
-            return new XopHttpClient(gatewayHost, appId, secret, config);
-        }
-
-    }
-
-    private static boolean isEmpty(String str) {
-        return str == null || "".equals(str);
-    }
 }

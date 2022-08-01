@@ -8,61 +8,78 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.xkw.xop.client.response.PagerDto;
+import com.xkw.xop.client.response.XopHttpResponse;
 import com.xkw.xop.client.response.XopResponse;
-import kong.unirest.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * XopHttpClientTests
  *
  * @author LiuJibin
- * @since 2021/07/01
  */
 public class XopHttpClientTests {
 
     // 凭证
-    private static final String APP_ID = "114";
-    private static final String SECRET = "hJiQ9O";
+    private static final String APP_ID = "";
+    private static final String SECRET = "";
     // URL
-    private static final String GET_URL = "/demosp/test/hello";
-    private static final String POST_URL = "/demosp/demosp/request-details";
+    private static final String GET_URL = "/xopqbm/areas";
+    private static final String POST_URL = "/xopqbm/questions";
 
     private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     @Test
     public void testGetRequest() {
-        // query参数一定要放入parameters!
-        Map<String, Object> queryMap = new HashMap<>(4);
-        queryMap.put("name", "test-id");
-        queryMap.put("res_name", "formal_res_name");
-        queryMap.put("list_count", 10);
-        HttpResponse<String> response = getClient().get(GET_URL, queryMap);
-        Assert.assertEquals(200, response.getStatus());
+        // query参数一定要放入queryParams中
+        Map<String, Object> queryParams = new HashMap<>(4);
+        queryParams.put("id", "1");
+        XopHttpResponse<String> response = getClient().get(GET_URL, queryParams);
+        // 请求失败处理
+        if (!response.isSuccess()) {
+            System.out.println("请求失败， 错误码： " + response.getStatus() + "requestId：" + response.getRequestId());
+            Assert.fail("请求失败");
+        }
+        System.out.println("请求成功，结果：");
+        XopResponse<AreaDto> result = GSON.fromJson(response.getBody(), new TypeToken<XopResponse<AreaDto>>(){}.getType());
+        System.out.println("Area: " + result.getData());
     }
 
     @Test
     public void testPostRequest() {
+        // 举一反三推题
         Map<String, Object> bodyParams = new HashMap<>(4);
-        bodyParams.put("name", "test-id");
-        bodyParams.put("res_name", "formal_res_name");
-        bodyParams.put("list_count", 10);
-        HttpResponse<String> response = getClient().post(POST_URL, null, bodyParams);
-        Assert.assertEquals(200, response.getStatus());
+        // 小学语文
+        bodyParams.put("course_id", 1);
+        // 知识点，基础知识
+        List<Integer> kpIds = new ArrayList<>();
+        kpIds.add(65443);
+        bodyParams.put("kpoint_ids", kpIds);
+        // 1条数据
+        bodyParams.put("count", 1);
+        XopHttpResponse<String> response = getClient().post(POST_URL, null, bodyParams);
+        // 请求失败处理
+        if (!response.isSuccess()) {
+            System.out.println("请求失败， 错误码： " + response.getStatus() + "requestId：" + response.getRequestId());
+            Assert.fail("请求失败");
+        }
+        System.out.println("请求成功，结果：" + response.getBody());
+        // 解析忽略
     }
 
     @Test
     public void testParseResult() {
-        String response = "{\"code\":200,\"msg\":\"success\",\"data\":{\"name\":\"demo name\",\"value\":20}}\n";
+        String response = "{\"code\":200,\"msg\":\"success\",\"data\":{\"name\":\"demo name\",\"value\":20}}";
         XopResponse<DemoDto> result = GSON.fromJson(response, new TypeToken<XopResponse<DemoDto>>(){}.getType());
         Assert.assertNotNull(result.getMsg());
         Assert.assertNotNull(result.getCode());
         System.out.println("Response Body:\n " + result.getData());
     }
-
 
     @Test
     public void testPager() {
@@ -76,11 +93,11 @@ public class XopHttpClientTests {
     }
 
     private XopHttpClient getClient() {
-        return new XopHttpClient.Builder()
+        return new XopClientBuilder()
             .appId(APP_ID)
             .secret(SECRET)
             .timeout(10).maxConnectionPerRoute(10)
-            .build();
+            .buildHttpClient();
     }
 
 }

@@ -8,7 +8,6 @@ package com.xkw.xop.client.hmac;
  * Hmac生成签名结果
  *
  * @author Wendy
- * @since 2021/07/05
  */
 public class HmacResult {
     private Long timeStamp;

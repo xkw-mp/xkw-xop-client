@@ -4,14 +4,28 @@
 package com.xkw.xop.client.response;
 
 /**
- * XOP API接口响应结果格式
- *
+ * XopResponse
+ * XOP接口返回内容格式（Body中返回的内容）
  * @author KQS
- * @since 2021/07/06
  */
 public class XopResponse<T> {
+
+    /**
+     * 接口返回code，一般定义的正常码；具体请参考接口文档
+     */
+    public static Integer SUCCESS = 2000000;
+
+    /**
+     * 错误码，用于标识具体错误
+     */
     private Integer code;
+    /**
+     * 错误说明
+     */
     private String msg;
+    /**
+     * 具体数据
+     */
     private T data;
 
     public Integer getCode() {
