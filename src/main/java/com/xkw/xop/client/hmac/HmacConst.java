@@ -6,8 +6,10 @@ package com.xkw.xop.client.hmac;
 /**
  * HmacConst
  * XOP-HMAC算法所用常量
+ *
  * @author Wendy
  */
+@SuppressWarnings("unused")
 public class HmacConst {
     /**
      * 请求发起时的时间戳
@@ -33,10 +35,8 @@ public class HmacConst {
      * POST请求的Body
      */
     public static final String REQUEST_BODY  = "xop_body";
-
     /**
      * 请求跟踪Id
      */
     public static final String KEY_REQUEST_ID = "X-Request-Id";
-
 }

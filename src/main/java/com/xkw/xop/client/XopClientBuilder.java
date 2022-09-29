@@ -3,18 +3,17 @@
  */
 package com.xkw.xop.client;
 
+import com.xkw.xop.client.impl.XopHttpClientImpl;
 import com.xkw.xop.client.utils.Constants;
-import com.xkw.xop.client.utils.Utils;
+import com.xkw.xop.client.utils.XopClientUtils;
 import kong.unirest.Config;
 import kong.unirest.Proxy;
 import kong.unirest.apache.ApacheClient;
 
-import static com.xkw.xop.client.utils.Constants.MAX_CONNECTION_PER_ROUTE;
-import static com.xkw.xop.client.utils.Constants.MAX_CONNECTION_POOL_SIZE;
-import static com.xkw.xop.client.utils.Constants.TIMEOUT;
-
 /**
  * XopClientBuilder
+ * Xop客户端构造器
+ *
  * @author LiuJibin
  */
 public class XopClientBuilder {
@@ -84,27 +83,27 @@ public class XopClientBuilder {
     }
 
     private void build() throws RuntimeException {
-        if (Utils.isEmpty(gatewayHost)) {
+        if (XopClientUtils.isEmpty(gatewayHost)) {
             gatewayHost = Constants.XOP_HOST_URL;
         }
-        if (Utils.isEmpty(appId)) {
+        if (XopClientUtils.isEmpty(appId)) {
             throw new RuntimeException("App Id must be set!");
         }
-        if (Utils.isEmpty(secret)) {
+        if (XopClientUtils.isEmpty(secret)) {
             throw new RuntimeException("App secret must be set!");
         }
         config = new Config();
-        if (timeout == null) {
-            timeout = TIMEOUT;
+        if (timeout == null || timeout.compareTo(0) <= 0) {
+            timeout = Constants.TIMEOUT;
         }
 
         config.socketTimeout(timeout * 1000)
                 .connectTimeout(timeout * 1000);
         if (maxPoolSize <= 0) {
-            maxPoolSize = MAX_CONNECTION_POOL_SIZE;
+            maxPoolSize = Constants.MAX_CONNECTION_POOL_SIZE;
         }
         if (maxConnectionPerRoute <= 0) {
-            maxConnectionPerRoute = MAX_CONNECTION_PER_ROUTE;
+            maxConnectionPerRoute = Constants.MAX_CONNECTION_PER_ROUTE;
         }
         config.concurrency(maxPoolSize, maxConnectionPerRoute);
         config.proxy(proxy);
@@ -119,7 +118,7 @@ public class XopClientBuilder {
 
     public XopHttpClient buildHttpClient() {
         this.build();
-        return new XopHttpClient(gatewayHost, appId, secret, config);
+        return new XopHttpClientImpl(gatewayHost, appId, secret, config);
     }
 
 }

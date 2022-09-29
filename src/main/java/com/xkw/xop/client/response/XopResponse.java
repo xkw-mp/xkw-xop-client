@@ -6,12 +6,13 @@ package com.xkw.xop.client.response;
 /**
  * XopResponse
  * XOP接口返回内容格式（Body中返回的内容）
+ *
  * @author KQS
  */
 public class XopResponse<T> {
 
     /**
-     * 接口返回code，一般定义的正常码；具体请参考接口文档
+     * 接口调用成功的成功码；具体请参考接口文档
      */
     public static Integer SUCCESS = 2000000;
 

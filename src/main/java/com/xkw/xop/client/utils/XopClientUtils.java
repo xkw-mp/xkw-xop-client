@@ -13,10 +13,14 @@ import java.util.UUID;
  * 常用工具
  * @author LiuJibin
  */
-public class Utils {
+public class XopClientUtils {
 
     public static boolean isEmpty(String str) {
         return str == null || "".equals(str);
+    }
+
+    public static String getResponseBody(HttpResponse<String> response) {
+        return Optional.ofNullable(response).map(HttpResponse::getBody).orElse("[empty]");
     }
 
     /**
