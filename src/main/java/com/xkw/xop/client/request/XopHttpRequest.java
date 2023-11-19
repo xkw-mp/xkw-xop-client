@@ -52,6 +52,7 @@ public interface XopHttpRequest {
 
     /**
      * 以下为Get方法
+     * @return HttpMethod
      */
     HttpMethod getHttpMethod();
 

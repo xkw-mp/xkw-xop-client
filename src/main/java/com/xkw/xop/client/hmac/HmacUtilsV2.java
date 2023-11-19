@@ -58,7 +58,7 @@ public class HmacUtilsV2 extends HmacUtils {
         try {
             byte[] key = secret.getBytes(StandardCharsets.UTF_8);
             Mac hmacSha256 = Mac.getInstance("HmacSHA256");
-            hmacSha256.init(new SECRETKeySpec(key, 0, key.length, ""));
+            hmacSha256.init(new SecretKeySpec(key, 0, key.length, ""));
             byte[] bytes = hmacSha256.doFinal(base64Str.getBytes(StandardCharsets.UTF_8));
             return Hex.encodeHexString(bytes);
         } catch (Exception e) {

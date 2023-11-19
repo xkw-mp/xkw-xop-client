@@ -19,7 +19,7 @@ public interface XopHttpClient {
     /**
      * GET无参请求
      * @param uri uri
-     * @return @see XopHttpResponse
+     * @return XopHttpResponse
      */
     XopHttpResponse<String> get(String uri);
 
@@ -27,7 +27,7 @@ public interface XopHttpClient {
      * GET有参请求
      * @param uri uri
      * @param queryParams query参数
-     * @return @see XopHttpResponse
+     * @return XopHttpResponse
      */
     XopHttpResponse<String> get(String uri, Map<String, Object> queryParams);
 
@@ -36,7 +36,7 @@ public interface XopHttpClient {
      * @param uri uri
      * @param queryParams query参数
      * @param body 请求体
-     * @return @see XopHttpResponse
+     * @return XopHttpResponse
      */
     XopHttpResponse<String> post(String uri, Map<String, Object> queryParams, Object body);
 
@@ -55,7 +55,7 @@ public interface XopHttpClient {
     /**
      * 发送请求，结果解析为String
      * @param request XopHttpRequest
-     * @return @see XopHttpResponse
+     * @return XopHttpResponse
      */
     XopHttpResponse<String> sendRequest(XopHttpRequest request);
 
