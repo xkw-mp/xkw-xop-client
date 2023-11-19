@@ -3,6 +3,7 @@
  */
 package com.xkw.xop.client;
 
+import com.xkw.xop.client.hmac.XopHmacVersionEnum;
 import com.xkw.xop.client.impl.XopHttpClientImpl;
 import com.xkw.xop.client.utils.Constants;
 import com.xkw.xop.client.utils.XopClientUtils;
@@ -45,6 +46,7 @@ public class XopClientBuilder {
     private int maxConnectionPerRoute;
     private Integer connectionValidatePeriod;
     private Config config;
+    private XopHmacVersionEnum hmacVersionEnum;
 
     public XopClientBuilder gatewayHost(String gatewayHost) {
         this.gatewayHost = gatewayHost;
@@ -82,6 +84,11 @@ public class XopClientBuilder {
         return this;
     }
 
+    public XopClientBuilder hmacVersion(XopHmacVersionEnum hmacVersionEnum) {
+        this.hmacVersionEnum = hmacVersionEnum;
+        return this;
+    }
+
     private void build() throws RuntimeException {
         if (XopClientUtils.isEmpty(gatewayHost)) {
             gatewayHost = Constants.XOP_HOST_URL;
@@ -114,11 +121,14 @@ public class XopClientBuilder {
                 return cli;
             });
         }
+        if (hmacVersionEnum == null) {
+            hmacVersionEnum = XopHmacVersionEnum.V1;
+        }
     }
 
     public XopHttpClient buildHttpClient() {
         this.build();
-        return new XopHttpClientImpl(gatewayHost, appId, secret, config);
+        return new XopHttpClientImpl(gatewayHost, appId, secret, config, hmacVersionEnum);
     }
 
 }

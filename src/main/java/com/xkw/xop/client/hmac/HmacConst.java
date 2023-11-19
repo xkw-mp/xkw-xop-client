@@ -20,6 +20,10 @@ public class HmacConst {
      */
     public static final String KEY_SIGN = "Xop-Sign";
     /**
+     * HMAC签名，V2，使用hmac-sha256
+     */
+    public static final String KEY_SIGN_V2 = "Xop-Sign-V2";
+    /**
      * 防止重放攻击的随机串
      */
     public static final String KEY_NONCE = "Xop-Nonce";

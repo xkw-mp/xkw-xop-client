@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.xkw.xop</groupId>
             <artifactId>xkw-xop-client</artifactId>
-            <version>1.0.4</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 ```

@@ -4,6 +4,7 @@
 package com.xkw.xop.client.impl;
 
 import com.xkw.xop.client.XopHttpClient;
+import com.xkw.xop.client.hmac.XopHmacVersionEnum;
 import com.xkw.xop.client.request.XopHttpRequest;
 import com.xkw.xop.client.request.impl.XopHttpRequestImpl;
 import com.xkw.xop.client.response.XopHttpResponse;
@@ -22,8 +23,8 @@ import java.util.Map;
 public class XopHttpClientImpl extends XopClientBase
     implements XopHttpClient {
 
-    public XopHttpClientImpl(String gatewayHost, String appId, String secret, Config config) {
-        super(gatewayHost, appId, secret, config);
+    public XopHttpClientImpl(String gatewayHost, String appId, String secret, Config config, XopHmacVersionEnum hmacVersionEnum) {
+        super(gatewayHost, appId, secret, config, hmacVersionEnum);
     }
 
     @Override

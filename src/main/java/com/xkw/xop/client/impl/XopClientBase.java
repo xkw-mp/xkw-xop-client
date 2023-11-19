@@ -3,6 +3,8 @@
  */
 package com.xkw.xop.client.impl;
 
+import com.xkw.xop.client.hmac.HmacUtilsV2;
+import com.xkw.xop.client.hmac.XopHmacVersionEnum;
 import com.xkw.xop.client.request.impl.XopHttpRequestBase;
 import com.xkw.xop.client.response.XopHttpResponse;
 import com.xkw.xop.client.response.impl.XopHttpResponseImpl;
@@ -36,14 +38,16 @@ public class XopClientBase {
     protected final String secret;
 
     protected final UnirestInstance client;
+    protected final XopHmacVersionEnum hmacVersionEnum;
 
-    public XopClientBase(String gatewayHost, String appId, String secret, Config config) {
+    public XopClientBase(String gatewayHost, String appId, String secret, Config config, XopHmacVersionEnum hmacVersionEnum) {
         this.gatewayHost = gatewayHost;
         this.appId = appId;
         this.secret = secret;
         if (config == null) {
             config = new Config();
         }
+        this.hmacVersionEnum = hmacVersionEnum;
         client = new UnirestInstance(config);
     }
 
@@ -97,6 +101,9 @@ public class XopClientBase {
             map.putAll(queryParams);
         }
         map.put(HmacConst.KEY_URL, uri);
+        if (XopHmacVersionEnum.V2 == this.hmacVersionEnum) {
+            return HmacUtilsV2.sign(appId, secret, map, bodyString);
+        }
         return HmacUtils.sign(appId, secret, map, bodyString);
     }
 
@@ -104,7 +111,7 @@ public class XopClientBase {
         Map<String, String> headerMap = new HashMap<>(8);
         headerMap.put(HmacConst.KEY_APP_ID, appId);
         headerMap.put(HmacConst.KEY_TIMESTAMP, result.getTimeStamp().toString());
-        headerMap.put(HmacConst.KEY_SIGN, result.getSign());
+        headerMap.put(hmacVersionEnum.getSignHeader(), result.getSign());
         headerMap.put(HmacConst.KEY_NONCE, result.getNonce());
         headerMap.put("Content-Type", CONTENT_TYPE_JSON);
         return headerMap;

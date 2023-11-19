@@ -38,6 +38,10 @@ public class HmacUtils {
      * @throws RuntimeException SHA1签名异常
      */
     public static HmacResult sign(String appId, String secret, final Map<String, ?> urlParam, String requestBodyStr) throws RuntimeException {
+        return sign(appId, secret, urlParam, requestBodyStr, HmacConst.KEY_SIGN, HmacUtils::getSignatureString);
+    }
+
+    protected static HmacResult sign(String appId, String secret, final Map<String, ?> urlParam, String requestBodyStr, String signHeader, SignatureFunction signatureFunction) throws RuntimeException {
         Map<String, Object> map = new HashMap<>(8);
         if (urlParam != null) {
             map.putAll(urlParam);
@@ -45,16 +49,16 @@ public class HmacUtils {
         // get AccessTokenId, sign
         map.put(HmacConst.KEY_APP_ID, appId);
         // 去掉传递过来的sign
-        map.remove(HmacConst.KEY_SIGN);
+        XopHmacVersionEnum.clearSignFromMap(map);
         // 去掉传递过来的nonce，一律在此统一放入
         map.remove(HmacConst.KEY_NONCE);
         String nonce = getNonce();
         map.put(HmacConst.KEY_NONCE, nonce);
         Long timeStamp = System.currentTimeMillis() / 1000;
         map.put(HmacConst.KEY_TIMESTAMP, timeStamp);
-        String sha1Str = getSignatureString(map, secret, requestBodyStr);
-        map.put(HmacConst.KEY_SIGN, sha1Str);
-        return new HmacResult(timeStamp, sha1Str, nonce);
+        String signStr = signatureFunction.apply(map, secret, requestBodyStr);
+        map.put(signHeader, signStr);
+        return new HmacResult(timeStamp, signStr, nonce);
     }
 
     /**
@@ -101,15 +105,15 @@ public class HmacUtils {
         String keyListStr = sortParamStr + "&secret=" + secret;
         String base64Str = base64Str(keyListStr);
         try {
-            MessageDigest md5 = MessageDigest.getInstance("SHA1");
-            byte[] bytes = md5.digest(base64Str.getBytes(StandardCharsets.UTF_8));
+            MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+            byte[] bytes = sha1.digest(base64Str.getBytes(StandardCharsets.UTF_8));
             return Hex.encodeHexString(bytes);
         } catch (Exception e) {
             throw new RuntimeException("Invalid sign");
         }
     }
 
-    private static String base64Str(String str) {
+    protected static String base64Str(String str) {
         try {
             Base64.Encoder encoder = Base64.getEncoder();
             byte[] bytes = encoder.encode(str.getBytes(StandardCharsets.UTF_8.name()));
